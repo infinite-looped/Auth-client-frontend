@@ -6,6 +6,7 @@ import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
 import Signup from "../pages/auth/Signup";
 
+
 export default function AppRoutes() {
   return (
     <Routes>

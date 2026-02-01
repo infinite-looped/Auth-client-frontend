@@ -47,6 +47,7 @@ export const AuthProvider = ({ children }) => {
 
     const me = await getMeReq();
     setUser(me.user);
+    setLoading(false);
   };
 
   // REFRESH SESSION
