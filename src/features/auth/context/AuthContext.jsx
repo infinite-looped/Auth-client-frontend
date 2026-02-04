@@ -14,6 +14,9 @@ import {
 
 export const AuthContext = createContext();
 
+// Singleton promise to prevent double-refresh in StrictMode
+let globalRefreshPromise = null;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
@@ -53,7 +56,19 @@ export const AuthProvider = ({ children }) => {
   // REFRESH SESSION
   const refresh = async () => {
     try {
-      const res = await refreshReq();
+      // Reuse existing promise if one is active (deduplication)
+      if (!globalRefreshPromise) {
+        globalRefreshPromise = (async () => {
+          try {
+            const res = await refreshReq();
+            return res;
+          } finally {
+            globalRefreshPromise = null;
+          }
+        })();
+      }
+
+      const res = await globalRefreshPromise;
 
       setInterceptorToken(res.accessToken);
       setAccessToken(res.accessToken);
