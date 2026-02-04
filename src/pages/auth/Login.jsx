@@ -47,7 +47,7 @@ const Login = () => {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          "Invalid credentials. Please try again."
+        "Invalid credentials. Please try again."
       );
     } finally {
       setLoading(false);
@@ -128,10 +128,10 @@ const Login = () => {
           Google
         </button>
         <p style={{ marginTop: 16 }}>
-            Don’t have an account?{" "}
-            <a href="/signup" style={{ color: "blue" }}>
-              Sign up
-            </a>
+          Don’t have an account?{" "}
+          <a href="/signup" style={{ color: "blue" }}>
+            Sign up
+          </a>
         </p>
 
       </form>

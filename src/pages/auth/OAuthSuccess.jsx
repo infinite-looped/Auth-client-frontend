@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../features/auth/hooks/useAuth";
 
@@ -7,43 +7,45 @@ import { useAuth } from "../../features/auth/hooks/useAuth";
  * Finalizes OAuth login after backend redirect
  */
 const OAuthSuccess = () => {
-  const { refresh } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [loginFailed, setLoginFailed] = useState(false);
 
   useEffect(() => {
-    const finalizeOAuthLogin = async () => {
-      try {
-        /**
-         * Backend already:
-         * - Verified OAuth provider
-         * - Created / linked user
-         * - Set refresh token cookie
-         *
-         * We now:
-         * - Validate session via refresh()
-         * - Restore user state
-         */
-        await refresh();
+    // 1. Wait for AuthContext to finish initial load
+    if (loading) return;
 
-        // Safe redirect handling
-        const redirectTo = searchParams.get("redirect") || "/dashboard";
-        navigate(redirectTo, { replace: true });
-      } catch (err) {
-        console.error("OAuth verification failed:", err);
-        navigate("/login", { replace: true });
-      }
-    };
+    // 2. Success Condition
+    if (isAuthenticated) {
+      const redirectTo = searchParams.get("redirect") || "/dashboard";
+      navigate(redirectTo, { replace: true });
+      return;
+    }
 
-    finalizeOAuthLogin();
-  }, [navigate, refresh, searchParams]);
+    // 3. Failure Condition
+    // Not loading AND not authenticated means login attempt failed
+    setLoginFailed(true);
+    const timer = setTimeout(() => {
+      navigate("/login", { replace: true });
+    }, 3000); // 3-second delay so user sees the message
+
+    return () => clearTimeout(timer);
+  }, [loading, isAuthenticated, navigate, searchParams]);
+
+  if (loginFailed) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center space-y-4">
+        <p className="text-lg font-semibold text-red-600">Login Failed</p>
+        <p className="text-gray-600">Redirecting to login...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col items-center justify-center space-y-4">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-black border-t-transparent" />
-      <p className="font-medium text-gray-600">
-        Completing secure login…
-      </p>
+      <p className="font-medium text-gray-600">Completing secure login…</p>
     </div>
   );
 };

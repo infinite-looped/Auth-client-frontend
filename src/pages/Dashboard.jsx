@@ -1,5 +1,6 @@
 import { useAuth } from "../features/auth/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -39,6 +40,9 @@ const Dashboard = () => {
             ? `You are logged in as ${user.email}`
             : "You are logged in"}
         </p>
+        <div style={{ marginBottom: "15px" }}>
+          <Link to="/profile">Go to Profile</Link>
+        </div>        
 
         <button
           onClick={handleLogout}
